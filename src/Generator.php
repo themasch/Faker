@@ -561,6 +561,13 @@ class Generator
     private $container;
 
     /**
+     * In order top prevent resetting the seed while another Generator instance is still alive, we keep track of the
+     * total, global number of Generator being "active". Incremented in __construct, decremented in __destruct.
+     * This is necessary, because __destruct modified global state (`mt_srand`).
+     */
+    private static int $generatorsAlive = 0;
+
+    /**
      * @var UniqueGenerator
      */
     private $uniqueGenerator;
@@ -568,6 +575,7 @@ class Generator
     public function __construct(ContainerInterface $container = null)
     {
         $this->container = $container ?: Container\ContainerBuilder::withDefaultExtensions()->build();
+        ++self::$generatorsAlive;
     }
 
     /**
@@ -963,7 +971,9 @@ class Generator
 
     public function __destruct()
     {
-        $this->seed();
+        if ((--self::$generatorsAlive) <= 0) {
+            $this->seed();
+        }
     }
 
     public function __wakeup()

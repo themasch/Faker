@@ -11,6 +11,7 @@ use Faker\Core\File;
 use Faker\Extension\BloodExtension;
 use Faker\Extension\ExtensionNotFound;
 use Faker\Extension\FileExtension;
+use Faker\Factory;
 use Faker\Generator;
 use Faker\Provider;
 use Faker\UniqueGenerator;
@@ -326,5 +327,25 @@ final class GeneratorTest extends TestCase
         ));
 
         $uniqueGenerator->word();
+    }
+
+    public function testDestructingOldGeneratorDoesNotResetTheSeed(): void
+    {
+        $faker = Factory::create('en_US');
+        $faker->seed(1);
+
+        $expected1 = $faker->numberBetween(1000, 10000);
+        $expected2 = $faker->numberBetween(1000, 10000);
+        $faker = null;
+
+        for ($i = 0; $i < 3; ++$i) {
+            $faker = Factory::create('en_US');
+            $faker->seed(1);
+            self::assertSame($expected1, $faker->numberBetween(1000, 10000));
+
+            gc_collect_cycles();
+
+            self::assertSame($expected2, $faker->numberBetween(1000, 10000));
+        }
     }
 }
