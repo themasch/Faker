@@ -561,9 +561,9 @@ class Generator
     private $container;
 
     /**
-     * In order top prevent resetting the seed while another Generator instance is still alive, we keep track of the
-     * total, global number of Generator being "active". Incremented in __construct, decremented in __destruct.
-     * This is necessary, because __destruct modified global state (`mt_srand`).
+     * In order to prevent resetting the seed while another Generator instance is still alive, we keep track of the
+     * total, global number of Generators being "active". Incremented in __construct, decremented in __destruct.
+     * This is necessary, because __destruct modifies global state (`mt_srand`).
      */
     private static int $generatorsAlive = 0;
 
